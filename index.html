@@ -1,251 +1,938 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Originality & Content Quality Checker</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Originality & Content Quality Checker</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 30px 20px;
-      background: #f5f7fa;
-      color: #222;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  color: #1f2937;
+}
 
-    .subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 30px;
-    }
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+}
 
-    textarea {
-      width: 100%;
-      min-height: 300px;
-      padding: 15px;
-      font-size: 16px;
-      line-height: 1.6;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;
-      resize: vertical;
-    }
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
-    button {
-      margin-top: 15px;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #24292f;
-      color: white;
-    }
+h1 {
+  margin-bottom: 8px;
+}
 
-    button:hover {
-      opacity: 0.9;
-    }
+.subtitle {
+  color: #667085;
+  margin: 0;
+}
 
-    #results {
-      display: none;
-      margin-top: 30px;
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-    }
+textarea {
+  width: 100%;
+  min-height: 320px;
+  padding: 16px;
+  border: 1px solid #cfd4dc;
+  border-radius: 10px;
+  resize: vertical;
+  font-size: 16px;
+  line-height: 1.6;
+  background: white;
+}
 
-    .score {
-      font-size: 32px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
+textarea:focus {
+  outline: 2px solid #2563eb;
+  border-color: #2563eb;
+}
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-    }
+.controls {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-    .stat {
-      padding: 15px;
-      background: #f5f7fa;
-      border-radius: 8px;
-    }
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 15px;
+  cursor: pointer;
+}
 
-    .stat strong {
-      display: block;
-      font-size: 22px;
-      margin-top: 5px;
-    }
+#analyzeBtn {
+  background: #2563eb;
+  color: white;
+}
 
-    .warnings {
-      margin-top: 20px;
-    }
+#clearBtn {
+  background: #e5e7eb;
+  color: #111827;
+}
 
-    .warnings li {
-      margin-bottom: 8px;
-    }
-  </style>
+button:hover {
+  opacity: 0.9;
+}
+
+.results {
+  margin-top: 30px;
+}
+
+.hidden {
+  display: none;
+}
+
+.score-box {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid #e1e5ea;
+}
+
+.score {
+  font-size: 42px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.score-label {
+  color: #667085;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e1e5ea;
+}
+
+.card strong {
+  display: block;
+  font-size: 24px;
+  margin-top: 8px;
+}
+
+.section {
+  background: white;
+  padding: 22px;
+  border-radius: 10px;
+  border: 1px solid #e1e5ea;
+  margin-bottom: 20px;
+}
+
+.section h2 {
+  margin-top: 0;
+}
+
+ul {
+  padding-left: 22px;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+.good {
+  color: #15803d;
+}
+
+.warning {
+  color: #b45309;
+}
+
+.bad {
+  color: #b91c1c;
+}
+
+.bar {
+  width: 100%;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: #2563eb;
+  transition: width 0.3s ease;
+}
+
+.note {
+  color: #667085;
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  background: #f9fafb;
+}
+</style>
 </head>
 
 <body>
 
-  <h1>Originality & Content Quality Checker</h1>
+<div class="container">
 
+<header>
+  <h1>Originality & Content Quality Checker</h1>
   <p class="subtitle">
     Analyze your content using transparent, deterministic checks.
   </p>
+</header>
 
-  <textarea
-    id="content"
-    placeholder="Paste your content here..."
-  ></textarea>
+<textarea
+  id="contentInput"
+  placeholder="Paste your article or content here..."
+></textarea>
 
-  <button onclick="analyzeContent()">Analyze Content</button>
+<div class="controls">
+  <button id="analyzeBtn">Analyze Content</button>
+  <button id="clearBtn">Clear</button>
+</div>
 
-  <section id="results">
+<div id="results" class="results hidden">
 
-    <div class="score">
-      Quality Score: <span id="score">0</span>/100
+  <div class="score-box">
+    <div class="score-label">Overall Quality Score</div>
+    <div id="qualityScore" class="score">0/100</div>
+
+    <div class="bar">
+      <div id="scoreBar" class="bar-fill"></div>
     </div>
 
-    <div class="stats">
+    <p id="scoreExplanation" class="note"></p>
+  </div>
 
-      <div class="stat">
-        Word Count
-        <strong id="wordCount">0</strong>
-      </div>
+  <div class="grid">
 
-      <div class="stat">
-        Sentence Count
-        <strong id="sentenceCount">0</strong>
-      </div>
-
-      <div class="stat">
-        Average Sentence Length
-        <strong id="avgSentenceLength">0</strong>
-      </div>
-
-      <div class="stat">
-        Repeated Words
-        <strong id="repeatedWords">0</strong>
-      </div>
-
+    <div class="card">
+      Word Count
+      <strong id="wordCount">0</strong>
     </div>
 
-    <div class="warnings">
-      <h3>Analysis Notes</h3>
-      <ul id="notes"></ul>
+    <div class="card">
+      Sentence Count
+      <strong id="sentenceCount">0</strong>
     </div>
 
-  </section>
+    <div class="card">
+      Paragraph Count
+      <strong id="paragraphCount">0</strong>
+    </div>
 
-  <script>
-    function analyzeContent() {
+    <div class="card">
+      Avg. Sentence Length
+      <strong id="avgSentenceLength">0</strong>
+    </div>
 
-      const text = document.getElementById("content").value.trim();
+    <div class="card">
+      Repeated Words
+      <strong id="repeatedWords">0</strong>
+    </div>
 
-      if (!text) {
-        alert("Please enter some content first.");
-        return;
-      }
+    <div class="card">
+      Long Sentences
+      <strong id="longSentences">0</strong>
+    </div>
 
-      const words = text.match(/\b[\w'-]+\b/g) || [];
+  </div>
 
-      const sentences = text
-        .split(/[.!?]+/)
-        .map(sentence => sentence.trim())
-        .filter(sentence => sentence.length > 0);
+  <div class="section">
+    <h2>Content Quality Signals</h2>
+    <ul id="qualitySignals"></ul>
+  </div>
 
-      const wordCount = words.length;
-      const sentenceCount = sentences.length;
+  <div class="section">
+    <h2>Readability Signals</h2>
+    <ul id="readabilitySignals"></ul>
+  </div>
 
-      const avgSentenceLength =
-        sentenceCount > 0
-          ? wordCount / sentenceCount
-          : 0;
+  <div class="section">
+    <h2>SEO Signals</h2>
+    <ul id="seoSignals"></ul>
+  </div>
 
-      const frequency = {};
+  <div class="section">
+    <h2>E-E-A-T Signals</h2>
+    <ul id="eeatSignals"></ul>
+  </div>
 
-      words.forEach(word => {
+  <div class="section">
+    <h2>AI-Writing Signals</h2>
+    <ul id="aiSignals"></ul>
+    <p class="note">
+      These are linguistic signals only. They do not prove that AI wrote the content.
+    </p>
+  </div>
 
-        const cleanWord = word.toLowerCase();
+  <div class="section">
+    <h2>Repeated Words</h2>
 
-        frequency[cleanWord] =
-          (frequency[cleanWord] || 0) + 1;
+    <table>
+      <thead>
+        <tr>
+          <th>Word</th>
+          <th>Count</th>
+        </tr>
+      </thead>
 
-      });
+      <tbody id="repeatedWordsTable"></tbody>
+    </table>
+  </div>
 
-      const repeatedWords = Object.values(frequency)
-        .filter(count => count >= 3)
-        .length;
+  <div class="section">
+    <h2>Analysis Notes</h2>
+    <ul id="analysisNotes"></ul>
+  </div>
 
-      let score = 100;
-      const notes = [];
+</div>
 
-      if (avgSentenceLength > 25) {
-        score -= 10;
-        notes.push(
-          "Some sentences may be longer than recommended."
-        );
-      }
+</div>
 
-      if (repeatedWords > 10) {
-        score -= 10;
-        notes.push(
-          "Several words appear repeatedly."
-        );
-      }
+<script>
 
-      if (wordCount < 100) {
-        score -= 10;
-        notes.push(
-          "The content is quite short for a detailed analysis."
-        );
-      }
+const contentInput = document.getElementById("contentInput");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const clearBtn = document.getElementById("clearBtn");
+const results = document.getElementById("results");
 
-      if (notes.length === 0) {
-        notes.push(
-          "No major issues were detected by these basic checks."
-        );
-      }
+const stopWords = new Set([
+  "the","a","an","and","or","but","if","then","than",
+  "this","that","these","those","with","from","into",
+  "for","are","was","were","has","have","had","you",
+  "your","our","their","they","them","his","her","its",
+  "is","in","on","at","to","of","as","by","it","be",
+  "can","will","would","should","could","about","we",
+  "he","she","i","me","my","not","do","does","did"
+]);
 
-      score = Math.max(0, score);
+function getWords(text) {
+  return text.match(/\b[\w'-]+\b/g) || [];
+}
 
-      document.getElementById("score").textContent = score;
-      document.getElementById("wordCount").textContent = wordCount;
-      document.getElementById("sentenceCount").textContent = sentenceCount;
-      document.getElementById("avgSentenceLength").textContent =
-        avgSentenceLength.toFixed(1);
-      document.getElementById("repeatedWords").textContent =
-        repeatedWords;
+function getSentences(text) {
+  return text
+    .split(/[.!?]+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
 
-      const notesList = document.getElementById("notes");
+function getParagraphs(text) {
+  return text
+    .split(/\n\s*\n/)
+    .map(p => p.trim())
+    .filter(Boolean);
+}
 
-      notesList.innerHTML = "";
+function getWordFrequency(words) {
 
-      notes.forEach(note => {
+  const frequency = {};
 
-        const li = document.createElement("li");
+  words.forEach(word => {
 
-        li.textContent = note;
+    const normalized = word
+      .toLowerCase()
+      .replace(/^['-]+|['-]+$/g, "");
 
-        notesList.appendChild(li);
-
-      });
-
-      document.getElementById("results").style.display = "block";
+    if (
+      normalized.length >= 4 &&
+      !stopWords.has(normalized)
+    ) {
+      frequency[normalized] =
+        (frequency[normalized] || 0) + 1;
     }
-  </script>
+
+  });
+
+  return frequency;
+}
+
+function setList(id, items) {
+
+  const element = document.getElementById(id);
+
+  element.innerHTML = "";
+
+  if (!items.length) {
+    element.innerHTML =
+      "<li class='good'>No major signals detected by this check.</li>";
+    return;
+  }
+
+  items.forEach(item => {
+
+    const li = document.createElement("li");
+    li.textContent = item.text;
+    li.className = item.type || "";
+
+    element.appendChild(li);
+
+  });
+}
+
+function analyzeContent() {
+
+  const text = contentInput.value.trim();
+
+  if (!text) {
+    alert("Please enter some content first.");
+    return;
+  }
+
+  const words = getWords(text);
+  const sentences = getSentences(text);
+  const paragraphs = getParagraphs(text);
+
+  const wordCount = words.length;
+  const sentenceCount = sentences.length;
+  const paragraphCount = paragraphs.length;
+
+  const avgSentenceLength =
+    sentenceCount
+      ? wordCount / sentenceCount
+      : 0;
+
+  const longSentenceCount =
+    sentences.filter(sentence => {
+      return getWords(sentence).length > 25;
+    }).length;
+
+  const frequency = getWordFrequency(words);
+
+  const repeated = Object.entries(frequency)
+    .filter(([word, count]) => count >= 3)
+    .sort((a, b) => b[1] - a[1]);
+
+  const veryRepeated = repeated
+    .filter(([word, count]) => count >= 5);
+
+  /*
+    Deterministic quality scoring.
+
+    This is NOT an AI probability.
+    It is based only on measurable text signals.
+  */
+
+  let score = 100;
+
+  if (wordCount < 100) {
+    score -= 10;
+  }
+
+  if (avgSentenceLength > 25) {
+    score -= 10;
+  }
+
+  if (avgSentenceLength > 35) {
+    score -= 10;
+  }
+
+  if (veryRepeated.length > 5) {
+    score -= 10;
+  }
+
+  if (paragraphCount === 1 && wordCount > 300) {
+    score -= 5;
+  }
+
+  if (longSentenceCount > sentenceCount * 0.3) {
+    score -= 10;
+  }
+
+  score = Math.max(0, Math.min(100, score));
+
+  document.getElementById("qualityScore").textContent =
+    score + "/100";
+
+  document.getElementById("scoreBar").style.width =
+    score + "%";
+
+  document.getElementById("wordCount").textContent =
+    wordCount;
+
+  document.getElementById("sentenceCount").textContent =
+    sentenceCount;
+
+  document.getElementById("paragraphCount").textContent =
+    paragraphCount;
+
+  document.getElementById("avgSentenceLength").textContent =
+    avgSentenceLength.toFixed(1);
+
+  document.getElementById("repeatedWords").textContent =
+    repeated.length;
+
+  document.getElementById("longSentences").textContent =
+    longSentenceCount;
+
+  /*
+    Quality signals
+  */
+
+  const qualitySignals = [];
+
+  if (wordCount < 100) {
+    qualitySignals.push({
+      text: "The content is quite short for a detailed analysis.",
+      type: "warning"
+    });
+  } else {
+    qualitySignals.push({
+      text: "The content contains enough text for basic structural analysis.",
+      type: "good"
+    });
+  }
+
+  if (paragraphCount > 1) {
+    qualitySignals.push({
+      text: "The content is divided into multiple paragraphs.",
+      type: "good"
+    });
+  } else {
+    qualitySignals.push({
+      text: "Only one paragraph was detected.",
+      type: "warning"
+    });
+  }
+
+  if (repeated.length > 0) {
+    qualitySignals.push({
+      text:
+        repeated.length +
+        " meaningful words appear at least three times.",
+      type: "warning"
+    });
+  }
+
+  setList("qualitySignals", qualitySignals);
+
+  /*
+    Readability signals
+  */
+
+  const readabilitySignals = [];
+
+  if (avgSentenceLength <= 20) {
+
+    readabilitySignals.push({
+      text:
+        "Average sentence length is within a generally readable range.",
+      type: "good"
+    });
+
+  } else {
+
+    readabilitySignals.push({
+      text:
+        "Average sentence length is above 20 words.",
+      type: "warning"
+    });
+
+  }
+
+  if (longSentenceCount > 0) {
+
+    readabilitySignals.push({
+      text:
+        longSentenceCount +
+        " sentence(s) contain more than 25 words.",
+      type: "warning"
+    });
+
+  } else {
+
+    readabilitySignals.push({
+      text:
+        "No sentences longer than 25 words were detected.",
+      type: "good"
+    });
+
+  }
+
+  setList("readabilitySignals", readabilitySignals);
+
+  /*
+    SEO signals
+  */
+
+  const seoSignals = [];
+
+  const headings = text.match(
+    /(^|\n)\s*(#{1,6}\s+|[A-Z][^\n]{0,80}:)/g
+  ) || [];
+
+  if (wordCount >= 300) {
+
+    seoSignals.push({
+      text:
+        "Content length is sufficient for basic on-page text analysis.",
+      type: "good"
+    });
+
+  } else {
+
+    seoSignals.push({
+      text:
+        "Content is short, so deeper topical and SEO analysis may be limited.",
+      type: "warning"
+    });
+
+  }
+
+  if (headings.length > 0) {
+
+    seoSignals.push({
+      text:
+        "Possible heading or section markers were detected.",
+      type: "good"
+    });
+
+  } else {
+
+    seoSignals.push({
+      text:
+        "No clear heading markers were detected.",
+      type: "warning"
+    });
+
+  }
+
+  const questionCount =
+    (text.match(/\?/g) || []).length;
+
+  if (questionCount > 0) {
+
+    seoSignals.push({
+      text:
+        questionCount +
+        " question(s) were detected, which may support answer-focused content.",
+      type: "good"
+    });
+
+  }
+
+  setList("seoSignals", seoSignals);
+
+  /*
+    E-E-A-T linguistic signals
+  */
+
+  const eeatSignals = [];
+
+  const experienceWords =
+    /\b(I|we|my|our|tested|used|experience|reviewed|tried|measured)\b/i;
+
+  const evidenceWords =
+    /\b(source|according|study|research|data|evidence|official|report)\b/i;
+
+  const expertiseWords =
+    /\b(expert|professional|specialist|experience|knowledge|technical)\b/i;
+
+  if (experienceWords.test(text)) {
+
+    eeatSignals.push({
+      text:
+        "First-person or experience-related language was detected.",
+      type: "good"
+    });
+
+  } else {
+
+    eeatSignals.push({
+      text:
+        "No clear first-person experience signals were detected.",
+      type: "warning"
+    });
+
+  }
+
+  if (evidenceWords.test(text)) {
+
+    eeatSignals.push({
+      text:
+        "Evidence or source-related language was detected.",
+      type: "good"
+    });
+
+  } else {
+
+    eeatSignals.push({
+      text:
+        "No obvious source/evidence terminology was detected.",
+      type: "warning"
+    });
+
+  }
+
+  if (expertiseWords.test(text)) {
+
+    eeatSignals.push({
+      text:
+        "Some expertise-related terminology was detected.",
+      type: "good"
+    });
+
+  } else {
+
+    eeatSignals.push({
+      text:
+        "No clear expertise-related terminology was detected.",
+      type: "warning"
+    });
+
+  }
+
+  setList("eeatSignals", eeatSignals);
+
+  /*
+    AI-writing linguistic signals
+
+    Important:
+    This does NOT say "AI probability".
+    It only reports measurable patterns.
+  */
+
+  const aiSignals = [];
+
+  const transitionWords = [
+    "however",
+    "moreover",
+    "furthermore",
+    "therefore",
+    "additionally",
+    "in conclusion",
+    "overall",
+    "for example",
+    "as a result"
+  ];
+
+  let transitionCount = 0;
+
+  transitionWords.forEach(word => {
+
+    const regex =
+      new RegExp("\\b" + word.replace(/ /g, "\\s+") + "\\b", "gi");
+
+    transitionCount +=
+      (text.match(regex) || []).length;
+
+  });
+
+  if (transitionCount > 8) {
+
+    aiSignals.push({
+      text:
+        "Frequent formal transition phrases were detected.",
+      type: "warning"
+    });
+
+  } else {
+
+    aiSignals.push({
+      text:
+        "No unusually high number of tracked transition phrases was detected.",
+      type: "good"
+    });
+
+  }
+
+  const sentenceStarters = {};
+
+  sentences.forEach(sentence => {
+
+    const sentenceWords = getWords(sentence);
+
+    if (sentenceWords.length > 0) {
+
+      const starter =
+        sentenceWords[0].toLowerCase();
+
+      sentenceStarters[starter] =
+        (sentenceStarters[starter] || 0) + 1;
+
+    }
+
+  });
+
+  const repeatedStarters =
+    Object.entries(sentenceStarters)
+      .filter(([word, count]) => count >= 3);
+
+  if (repeatedStarters.length > 0) {
+
+    aiSignals.push({
+      text:
+        "Some sentence starters are repeated multiple times.",
+      type: "warning"
+    });
+
+  } else {
+
+    aiSignals.push({
+      text:
+        "No strong repeated sentence-starter pattern was detected.",
+      type: "good"
+    });
+
+  }
+
+  setList("aiSignals", aiSignals);
+
+  /*
+    Repeated words table
+  */
+
+  const table =
+    document.getElementById("repeatedWordsTable");
+
+  table.innerHTML = "";
+
+  if (repeated.length === 0) {
+
+    const row = document.createElement("tr");
+
+    row.innerHTML =
+      "<td colspan='2'>No meaningful repeated words detected.</td>";
+
+    table.appendChild(row);
+
+  } else {
+
+    repeated.slice(0, 30).forEach(([word, count]) => {
+
+      const row = document.createElement("tr");
+
+      row.innerHTML =
+        "<td>" + word + "</td>" +
+        "<td>" + count + "</td>";
+
+      table.appendChild(row);
+
+    });
+
+  }
+
+  /*
+    Analysis notes
+  */
+
+  const notes = [];
+
+  if (avgSentenceLength > 25) {
+
+    notes.push({
+      text:
+        "Some sentences may be longer than recommended.",
+      type: "warning"
+    });
+
+  }
+
+  if (longSentenceCount > sentenceCount * 0.3) {
+
+    notes.push({
+      text:
+        "A relatively high share of sentences are longer than 25 words.",
+      type: "warning"
+    });
+
+  }
+
+  if (repeated.length > 10) {
+
+    notes.push({
+      text:
+        "Several meaningful words are repeated frequently.",
+      type: "warning"
+    });
+
+  }
+
+  if (wordCount < 100) {
+
+    notes.push({
+      text:
+        "The content is quite short for a detailed analysis.",
+      type: "warning"
+    });
+
+  }
+
+  if (!notes.length) {
+
+    notes.push({
+      text:
+        "No major issues were detected by the current deterministic checks.",
+      type: "good"
+    });
+
+  }
+
+  setList("analysisNotes", notes);
+
+  let explanation = "";
+
+  if (score >= 90) {
+    explanation =
+      "Strong structural result based on the current measurable checks.";
+  } else if (score >= 70) {
+    explanation =
+      "Some measurable issues were detected and may be worth reviewing.";
+  } else {
+    explanation =
+      "Several measurable content-structure issues were detected.";
+  }
+
+  document.getElementById("scoreExplanation").textContent =
+    explanation;
+
+  results.classList.remove("hidden");
+}
+
+analyzeBtn.addEventListener(
+  "click",
+  analyzeContent
+);
+
+clearBtn.addEventListener("click", () => {
+
+  contentInput.value = "";
+  results.classList.add("hidden");
+
+});
+
+</script>
 
 </body>
 </html>
