@@ -1,0 +1,1 @@
+# originality-content-quality-checker
