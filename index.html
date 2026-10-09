@@ -766,22 +766,28 @@ function analyzeContent() {
 
   }
 
-  const sentenceStarters = {};
+
+  const sentenceStarters = Object.create(null);
+
+  const ignoredStarters = new Set([
+    "the", "this", "that", "these", "those",
+    "a", "an", "it", "there", "here"
+  ]);
 
   sentences.forEach(sentence => {
-
     const sentenceWords = getWords(sentence);
 
     if (sentenceWords.length > 0) {
+      const starter = sentenceWords[0]
+        .normalize("NFKC")
+        .toLowerCase()
+        .replace(/^['-]+|['-]+$/g, "");
 
-      const starter =
-        sentenceWords[0].toLowerCase();
-
-      sentenceStarters[starter] =
-        (sentenceStarters[starter] || 0) + 1;
-
+      if (starter && !ignoredStarters.has(starter)) {
+        sentenceStarters[starter] =
+          (sentenceStarters[starter] || 0) + 1;
+      }
     }
-
   });
 
   const repeatedStarters =
