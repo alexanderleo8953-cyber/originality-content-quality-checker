@@ -435,7 +435,17 @@ function analyzeContent() {
       return getWords(sentence).length > 25;
     }).length;
 
-  const frequency = getWordFrequency(words);
+
+  const meaningfulWords = words.filter(word => {
+    const normalizedWord = word
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/^['-]+|['-]+$/g, "");
+
+    return normalizedWord && !stopWords.has(normalizedWord);
+  });
+
+  const frequency = getWordFrequency(meaningfulWords);
 
   const repeated = Object.entries(frequency)
     .filter(([word, count]) => count >= 3)
