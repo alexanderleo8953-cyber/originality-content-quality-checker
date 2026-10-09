@@ -327,14 +327,21 @@ const analyzeBtn = document.getElementById("analyzeBtn");
 const clearBtn = document.getElementById("clearBtn");
 const results = document.getElementById("results");
 
+
 const stopWords = new Set([
-  "the","a","an","and","or","but","if","then","than",
-  "this","that","these","those","with","from","into",
-  "for","are","was","were","has","have","had","you",
-  "your","our","their","they","them","his","her","its",
-  "is","in","on","at","to","of","as","by","it","be",
-  "can","will","would","should","could","about","we",
-  "he","she","i","me","my","not","do","does","did"
+  "the", "a", "an", "and", "or", "but", "if", "then", "than",
+  "this", "that", "these", "those", "with", "from", "into",
+  "for", "are", "was", "were", "has", "have", "had", "you",
+  "your", "our", "their", "they", "them", "his", "her", "its",
+  "is", "in", "on", "at", "to", "of", "as", "by", "it", "be",
+  "can", "will", "would", "should", "could", "about", "we",
+  "he", "she", "i", "me", "my", "not", "do", "does", "did",
+  "what", "which", "who", "whom", "when", "where", "why", "how",
+  "because", "before", "after", "while", "during", "through",
+  "there", "here", "been", "being", "also", "just", "only",
+  "some", "such", "each", "both", "more", "most", "much", "many",
+  "other", "another", "own", "same", "very", "too", "so",
+  "up", "out", "over", "under", "again", "once", "all"
 ]);
 
 function getWords(text) {
