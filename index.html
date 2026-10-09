@@ -356,23 +356,22 @@ function getParagraphs(text) {
 }
 
 function getWordFrequency(words) {
-
-  const frequency = {};
+  const frequency = Object.create(null);
 
   words.forEach(word => {
-
     const normalized = word
+      .normalize("NFKC")
       .toLowerCase()
       .replace(/^['-]+|['-]+$/g, "");
 
     if (
       normalized.length >= 4 &&
+      /^[\p{L}\p{N}'-]+$/u.test(normalized) &&
       !stopWords.has(normalized)
     ) {
       frequency[normalized] =
         (frequency[normalized] || 0) + 1;
     }
-
   });
 
   return frequency;
