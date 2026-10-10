@@ -244,87 +244,313 @@ function compareTexts() {
   setRows("matchesTable",rows,"No eligible matching phrases found.");
 }
 
+
 function analyzeContent() {
-  const text=$("contentInput").value.trim();
-  if(!text){alert("Please enter some content first.");return;}
+  const text = $("contentInput").value.trim();
 
-  const w=words(text);
-  const s=sentences(text);
-  const p=paragraphs(text);
-  const wc=w.length, sc=s.length, pc=p.length;
-  const avg=sc?wc/sc:0;
-  const long=s.filter(x=>words(x).length>25).length;
-  const freq=frequencies(normalizedWords(text));
-  const repeated=freq.filter(([,n])=>n>=5);
+  if (!text) {
+    alert("Please enter some content first.");
+    return;
+  }
 
-  let score=100;
-  if(wc<100) score-=10;
-  if(avg>25) score-=10;
-  if(avg>35) score-=10;
-  if(repeated.length>5) score-=10;
-  if(pc===1&&wc>300) score-=5;
-  if(sc&&long>sc*.3) score-=10;
-  score=Math.max(0,Math.min(100,score));
+  const w = words(text);
+  const s = sentences(text);
+  const p = paragraphs(text);
 
-  $("qualityScore").textContent=score+"/100";
-  $("scoreBar").style.width=score+"%";
-  $("wordCount").textContent=wc;
-  $("sentenceCount").textContent=sc;
-  $("paragraphCount").textContent=pc;
-  $("avgSentenceLength").textContent=avg.toFixed(1);
-  $("repeatedWords").textContent=freq.length;
-  $("longSentences").textContent=long;
+  const wc = w.length;
+  const sc = s.length;
+  const pc = p.length;
+  const avg = sc ? wc / sc : 0;
+  const long = s.filter(x => words(x).length > 25).length;
 
-  const quality=[];
-  quality.push({text:wc<100?"Content is short for detailed structural analysis.":"Enough text is available for basic structural analysis.",type:wc<100?"warning":"good"});
-  quality.push({text:pc>1?"Content is divided into multiple paragraphs.":"Only one paragraph was detected.",type:pc>1?"good":"warning"});
-  if(freq.length) quality.push({text:freq.length+" meaningful words appear at least three times. Review whether repetition is necessary.",type:"warning"});
-  setList("qualitySignals",quality);
+  const freq = frequencies(normalizedWords(text));
+  const highFrequency = freq.filter(([, count]) => count >= 5);
 
-  const readability=[];
-  readability.push({text:avg<=20?"Average sentence length is within a generally readable range.":"Average sentence length is above 20 words.",type:avg<=20?"good":"warning"});
-  readability.push({text:long?long+" sentence(s) contain more than 25 words.":"No sentences longer than 25 words were detected.",type:long?"warning":"good"});
-  setList("readabilitySignals",readability);
+  // Count occurrences beyond the first two uses of each repeated word.
+  const repeatedExcess = freq.reduce(
+    (total, [, count]) => total + Math.max(0, count - 2),
+    0
+  );
 
-  const seo=[];
-  seo.push({text:wc>=300?"At least 300 words are available for basic on-page analysis.":"Content is short; deeper topical analysis may be limited.",type:wc>=300?"good":"warning"});
-  const headings=(text.match(/(^|\n)\s*(#{1,6}\s+|[A-Z][^\n]{0,80}:)/g)||[]).length;
-  seo.push({text:headings?"Possible heading or section markers were detected.":"No clear heading markers were detected.",type:headings?"good":"warning"});
-  const questions=(text.match(/\?/g)||[]).length;
-  if(questions) seo.push({text:questions+" question(s) detected.",type:"good"});
-  setList("seoSignals",seo);
+  const repetitionRatio = wc ? repeatedExcess / wc : 0;
 
-  const eeat=[];
-  const checks=[
-    [/\b(I|we|my|our|tested|used|experience|reviewed|tried|measured)\b/i,"First-person or experience-related language detected."],
-    [/\b(source|according|study|research|data|evidence|official|report)\b/i,"Evidence or source-related language detected."],
-    [/\b(expert|professional|specialist|knowledge|technical)\b/i,"Expertise-related terminology detected."]
+  // Transparent structural scoring: no plagiarism or AI probability.
+  let score = 100;
+  const deductions = [];
+
+  function deduct(points, reason) {
+    score -= points;
+    deductions.push(reason + " (-" + points + ")");
+  }
+
+  if (wc < 100) {
+    deduct(10, "Short content");
+  }
+
+  if (avg > 25) {
+    deduct(10, "High average sentence length");
+  }
+
+  if (avg > 35) {
+    deduct(10, "Very long average sentence length");
+  }
+
+  if (pc === 1 && wc > 300) {
+    deduct(5, "Long content in one paragraph");
+  }
+
+  if (sc && long > sc * 0.3) {
+    deduct(10, "High proportion of long sentences");
+  }
+
+  // Repetition penalties use measurable text patterns.
+  if (repetitionRatio > 0.20) {
+    const penalty = Math.min(
+      15,
+      Math.round((repetitionRatio - 0.20) * 50)
+    );
+
+    if (penalty > 0) {
+      deduct(penalty, "High repeated-word burden");
+    }
+  }
+
+  if (highFrequency.length > 0) {
+    deduct(
+      Math.min(10, highFrequency.length * 2),
+      "Words repeated five or more times"
+    );
+  }
+
+  score = Math.max(0, Math.min(100, score));
+
+  $("qualityScore").textContent = score + "/100";
+  $("scoreBar").style.width = score + "%";
+
+  $("wordCount").textContent = wc;
+  $("sentenceCount").textContent = sc;
+  $("paragraphCount").textContent = pc;
+  $("avgSentenceLength").textContent = avg.toFixed(1);
+  $("repeatedWords").textContent = freq.length;
+  $("longSentences").textContent = long;
+
+  const quality = [];
+
+  quality.push({
+    text: wc < 100
+      ? "Content is short for detailed structural analysis."
+      : "Enough text is available for basic structural analysis.",
+    type: wc < 100 ? "warning" : "good"
+  });
+
+  quality.push({
+    text: pc > 1
+      ? "Content is divided into multiple paragraphs."
+      : "Only one paragraph was detected.",
+    type: pc > 1 ? "good" : "warning"
+  });
+
+  if (freq.length) {
+    quality.push({
+      text: freq.length +
+        " meaningful words appear at least three times. Review whether repetition is necessary.",
+      type: "warning"
+    });
+  } else {
+    quality.push({
+      text: "No meaningful words were repeated three or more times.",
+      type: "good"
+    });
+  }
+
+  quality.push({
+    text: "Repeated-word burden: " +
+      (repetitionRatio * 100).toFixed(1) +
+      "% of words are occurrences beyond the first two uses of each repeated word.",
+    type: repetitionRatio > 0.20 ? "warning" : "good"
+  });
+
+  setList("qualitySignals", quality);
+
+  const readability = [];
+
+  readability.push({
+    text: avg <= 20
+      ? "Average sentence length is within a generally readable range."
+      : "Average sentence length is above 20 words.",
+    type: avg <= 20 ? "good" : "warning"
+  });
+
+  readability.push({
+    text: long
+      ? long + " sentence(s) contain more than 25 words."
+      : "No sentences longer than 25 words were detected.",
+    type: long ? "warning" : "good"
+  });
+
+  setList("readabilitySignals", readability);
+
+  const seo = [];
+
+  seo.push({
+    text: wc >= 300
+      ? "At least 300 words are available for basic on-page analysis."
+      : "Content is short; deeper topical analysis may be limited.",
+    type: wc >= 300 ? "good" : "warning"
+  });
+
+  const headings =
+    (text.match(/(^|\n)\s*(#{1,6}\s+|[A-Z][^\n]{0,80}:)/g) || []).length;
+
+  seo.push({
+    text: headings
+      ? "Possible heading or section markers were detected."
+      : "No clear heading markers were detected.",
+    type: headings ? "good" : "warning"
+  });
+
+  const questions = (text.match(/\?/g) || []).length;
+
+  if (questions) {
+    seo.push({
+      text: questions + " question(s) detected.",
+      type: "good"
+    });
+  }
+
+  setList("seoSignals", seo);
+
+  const eeat = [];
+
+  const checks = [
+    [
+      /\b(I|we|my|our|tested|used|experience|reviewed|tried|measured)\b/i,
+      "First-person or experience-related language detected."
+    ],
+    [
+      /\b(source|according|study|research|data|evidence|official|report)\b/i,
+      "Evidence or source-related language detected."
+    ],
+    [
+      /\b(expert|professional|specialist|knowledge|technical)\b/i,
+      "Expertise-related terminology detected."
+    ]
   ];
-  checks.forEach(([re,msg])=>eeat.push({text:re.test(text)?msg:msg.replace("detected.","not detected."),type:re.test(text)?"good":"warning"}));
-  setList("eeatSignals",eeat);
 
-  const ai=[];
-  const transitions=(text.match(/\b(however|moreover|furthermore|therefore|additionally|in conclusion|overall|for example|as a result)\b/gi)||[]).length;
-  ai.push({text:transitions>8?"Frequent tracked transition phrases detected.":"No unusually high number of tracked transition phrases detected.",type:transitions>8?"warning":"good"});
-  const starters={};
-  s.forEach(sentence=>{const first=words(sentence)[0];if(first){const k=first.toLowerCase();starters[k]=(starters[k]||0)+1;}});
-  const repeatedStarters=Object.entries(starters).filter(([,n])=>n>=3);
-  ai.push({text:repeatedStarters.length?"Some sentence starters are repeated three or more times.":"No strong repeated sentence-starter pattern detected.",type:repeatedStarters.length?"warning":"good"});
-  setList("aiSignals",ai);
+  checks.forEach(([re, msg]) => {
+    const found = re.test(text);
 
-  setRows("repeatedWordsTable",freq.map(([word,count])=>[word,count]),"No meaningful repeated words detected.");
-  setRows("repeatedPhrasesTable",repeatedPhrases(text).map(([phrase,count])=>[phrase,count]),"No repeated meaningful phrases detected.");
+    eeat.push({
+      text: found ? msg : msg.replace("detected.", "not detected."),
+      type: found ? "good" : "warning"
+    });
+  });
 
-  const notes=[];
-  if(avg>25) notes.push({text:"Review long average sentence length.",type:"warning"});
-  if(sc&&long>sc*.3) notes.push({text:"More than 30% of sentences exceed 25 words.",type:"warning"});
-  if(freq.length>10) notes.push({text:"Several meaningful words repeat frequently.",type:"warning"});
-  if(!notes.length) notes.push({text:"No major issues were detected by these deterministic checks.",type:"good"});
-  setList("analysisNotes",notes);
+  setList("eeatSignals", eeat);
 
-  $("scoreExplanation").textContent=score>=90?"Strong structural result under the current measurable checks.":score>=70?"Some measurable structural issues may be worth reviewing.":"Several structural issues were detected. Review the signals above.";
+  const ai = [];
+
+  const transitions =
+    (text.match(
+      /\b(however|moreover|furthermore|therefore|additionally|in conclusion|overall|for example|as a result)\b/gi
+    ) || []).length;
+
+  ai.push({
+    text: transitions > 8
+      ? "Frequent tracked transition phrases detected."
+      : "No unusually high number of tracked transition phrases detected.",
+    type: transitions > 8 ? "warning" : "good"
+  });
+
+  const starters = {};
+
+  s.forEach(sentence => {
+    const first = words(sentence)[0];
+
+    if (first) {
+      const key = first.toLocaleLowerCase();
+      starters[key] = (starters[key] || 0) + 1;
+    }
+  });
+
+  const repeatedStarters =
+    Object.entries(starters).filter(([, count]) => count >= 3);
+
+  ai.push({
+    text: repeatedStarters.length
+      ? "Some sentence starters are repeated three or more times."
+      : "No strong repeated sentence-starter pattern detected.",
+    type: repeatedStarters.length ? "warning" : "good"
+  });
+
+  setList("aiSignals", ai);
+
+  setRows(
+    "repeatedWordsTable",
+    freq.map(([word, count]) => [word, count]),
+    "No meaningful repeated words detected."
+  );
+
+  setRows(
+    "repeatedPhrasesTable",
+    repeatedPhrases(text).map(([phrase, count]) => [phrase, count]),
+    "No repeated meaningful phrases detected."
+  );
+
+  const notes = [];
+
+  if (avg > 25) {
+    notes.push({
+      text: "Review long average sentence length.",
+      type: "warning"
+    });
+  }
+
+  if (sc && long > sc * 0.3) {
+    notes.push({
+      text: "More than 30% of sentences exceed 25 words.",
+      type: "warning"
+    });
+  }
+
+  if (freq.length > 10) {
+    notes.push({
+      text: "Several meaningful words repeat frequently.",
+      type: "warning"
+    });
+  }
+
+  if (repetitionRatio > 0.20) {
+    notes.push({
+      text: "Review repeated words and consider varying wording where appropriate.",
+      type: "warning"
+    });
+  }
+
+  if (deductions.length) {
+    notes.push({
+      text: "Score deductions: " + deductions.join("; ") + ".",
+      type: "warning"
+    });
+  } else {
+    notes.push({
+      text: "No deductions were triggered by the current structural scoring rules.",
+      type: "good"
+    });
+  }
+
+  setList("analysisNotes", notes);
+
+  $("scoreExplanation").textContent =
+    score >= 90
+      ? "Strong structural result under the current measurable checks."
+      : score >= 70
+        ? "Some measurable structural issues may be worth reviewing."
+        : "Several structural issues were detected. Review the signals above.";
+
   $("analysisResults").classList.remove("hidden");
 }
+
 
 $("analyzeBtn").addEventListener("click",analyzeContent);
 $("compareBtn").addEventListener("click",compareTexts);
