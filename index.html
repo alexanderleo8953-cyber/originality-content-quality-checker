@@ -4,146 +4,466 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Free browser-based content quality analyzer, text comparison, and writing improvement tool.">
+<meta name="description" content="Free browser-based content quality analysis, writing improvement suggestions, and local reference comparison.">
+<meta name="theme-color" content="#2563eb">
 <title>Originality & Content Quality Checker</title>
+
 <style>
+:root{
+  --bg:#f4f6f8;
+  --surface:#fff;
+  --text:#1f2937;
+  --muted:#667085;
+  --border:#e1e5ea;
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --green:#15803d;
+  --amber:#a16207;
+  --red:#b91c1c;
+}
+
 *{box-sizing:border-box}
-body{margin:0;background:#f4f6f8;color:#1f2937;font:16px Arial,sans-serif}
-.container{max-width:1100px;margin:auto;padding:28px 18px 60px}
-header{text-align:center;margin-bottom:28px}
-.subtitle,.note{color:#667085;line-height:1.6}
-.panel,.card{background:white;border:1px solid #e1e5ea;border-radius:12px;padding:20px;margin-bottom:18px}
-h2{font-size:21px;margin-top:0}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:16px/1.6 Arial,Helvetica,sans-serif;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:28px 18px 60px;
+}
+
+header{
+  text-align:center;
+  margin-bottom:28px;
+}
+
+h1{
+  line-height:1.25;
+  overflow-wrap:anywhere;
+}
+
+h2{
+  font-size:21px;
+  line-height:1.35;
+  margin-top:0;
+}
+
 h3{margin-top:22px}
-textarea,select{width:100%;padding:13px;border:1px solid #cfd4dc;border-radius:8px;font:15px Arial;line-height:1.6}
-textarea{min-height:220px;resize:vertical}
-textarea:focus,select:focus{outline:2px solid #93c5fd;border-color:#2563eb}
-label{display:block;font-weight:bold;margin:12px 0 8px}
-button{padding:12px 17px;border:0;border-radius:8px;cursor:pointer;font-size:15px;background:#e5e7eb;color:#111827}
-button:hover{opacity:.88}
+
+.subtitle,.note{color:var(--muted)}
+
+.panel,.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:18px;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin:12px 0 8px;
+}
+
+textarea,select{
+  display:block;
+  width:100%;
+  padding:13px;
+  border:1px solid #cfd4dc;
+  border-radius:8px;
+  background:#fff;
+  color:var(--text);
+  font:15px/1.6 Arial,Helvetica,sans-serif;
+}
+
+textarea{
+  min-height:220px;
+  resize:vertical;
+}
+
+textarea:focus,select:focus,button:focus-visible,
+input:focus-visible{
+  outline:3px solid #93c5fd;
+  outline-offset:2px;
+}
+
+button{
+  padding:12px 17px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:15px;
+  background:#e5e7eb;
+  color:#111827;
+}
+
+button:hover{opacity:.9}
 button:disabled{opacity:.5;cursor:not-allowed}
-.primary{background:#2563eb;color:white}
-.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.metric{font-size:27px;font-weight:bold;margin-top:9px;overflow-wrap:anywhere}
-.hidden{display:none}
-.bar{height:12px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:12px 0}
-.fill{height:100%;width:0;background:#2563eb;transition:width .2s}
-table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:10px;border-bottom:1px solid #e5e7eb;overflow-wrap:anywhere;vertical-align:top}
-th{background:#f9fafb}
+
+.primary{
+  background:var(--primary);
+  color:white;
+}
+
+.primary:hover{background:var(--primary-dark)}
+
+.controls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:12px;
+}
+
+.metric{
+  font-size:27px;
+  font-weight:bold;
+  margin-top:9px;
+  overflow-wrap:anywhere;
+}
+
+.hidden{display:none!important}
+
+.bar{
+  height:12px;
+  background:#e5e7eb;
+  border-radius:20px;
+  overflow:hidden;
+  margin:12px 0;
+}
+
+.fill{
+  height:100%;
+  width:0;
+  background:var(--primary);
+  transition:width .2s;
+}
+
 .table-wrap{overflow-x:auto}
-li{margin-bottom:9px;line-height:1.5}
-.good{color:#15803d}.warning{color:#a16207}.bad{color:#b91c1c}
-.status{padding:12px;background:#f8fafc;border-radius:8px;line-height:1.6}
-.repair-row{border:1px solid #e1e5ea;border-radius:9px;padding:14px;margin:12px 0}
-.repair-row label{display:flex;align-items:flex-start;gap:10px;margin:0 0 10px;font-weight:normal}
-.repair-row input[type=checkbox]{width:auto;margin-top:5px}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  text-align:left;
+  padding:10px;
+  border-bottom:1px solid var(--border);
+  overflow-wrap:anywhere;
+  vertical-align:top;
+}
+
+th{background:#f9fafb}
+
+li{margin-bottom:9px}
+
+.good{color:var(--green)}
+.warning{color:var(--amber)}
+.bad{color:var(--red)}
+
+.status{
+  padding:12px;
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow-wrap:anywhere;
+}
+
+.repair-row{
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:14px;
+  margin:12px 0;
+}
+
+.repair-row .choice{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin:0 0 10px;
+  font-weight:normal;
+}
+
+.repair-row input[type="checkbox"]{
+  width:auto;
+  margin-top:5px;
+  flex-shrink:0;
+}
+
 .repair-row select{margin-top:8px}
-footer{font-size:13px;color:#667085;line-height:1.6}
+
+footer{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.7;
+  padding-top:10px;
+}
+
 @media(max-width:600px){
- .container{padding:18px 12px}
- .panel{padding:15px}
- button{flex:1}
+  .container{padding:18px 12px 40px}
+  .panel,.card{padding:15px}
+  .controls button{flex:1 1 140px}
+  h1{font-size:27px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    scroll-behavior:auto!important;
+    transition:none!important;
+  }
 }
 </style>
 </head>
+
 <body>
 <div class="container">
 
 <header>
-<h1>Originality & Content Quality Checker</h1>
-<p class="subtitle">Free, browser-based content analysis and local reference comparison.</p>
+  <h1>Originality & Content Quality Checker</h1>
+  <p class="subtitle">
+    Free, browser-based content analysis and local reference comparison.
+  </p>
 </header>
 
+<main>
+
 <section class="panel">
-<h2>1. Content Analyzer</h2>
-<label for="contentInput">Your article or content</label>
-<textarea id="contentInput" placeholder="Paste your article here..."></textarea>
-<div class="controls">
-<button class="primary" id="analyzeBtn">Analyze Content</button>
-<button id="clearBtn">Clear All</button>
-</div>
+  <h2>1. Content Analyzer</h2>
+
+  <label for="contentInput">Your article or content</label>
+  <textarea id="contentInput"
+    placeholder="Paste your article here..."
+    spellcheck="true"></textarea>
+
+  <div class="controls">
+    <button class="primary" id="analyzeBtn">Analyze Content</button>
+    <button id="clearBtn">Clear All</button>
+  </div>
 </section>
 
 <section class="panel">
-<h2>2. Auto Repair & Final Recheck</h2>
-<p class="note">Find repeated words, choose alternatives, preview proposed changes, and apply only after reviewing them.</p>
-<div class="controls">
-<button class="primary" id="findRepairBtn">Find Improvement Suggestions</button>
-<button id="previewRepairBtn">Preview Selected Fixes</button>
-<button id="applyRepairBtn">Apply Selected Fixes</button>
-<button id="recheckRepairBtn">Final Recheck</button>
-</div>
-<div id="repairResults" class="hidden" aria-live="polite">
-<h3>Suggested Improvements</h3>
-<div id="repairSuggestions"></div>
-<h3>Preview</h3>
-<textarea id="repairPreview" placeholder="Preview will appear here..." aria-label="Proposed article preview"></textarea>
-<p id="repairStatus" class="status">No changes have been applied.</p>
-<p class="note">Check context and grammar before applying replacements. Keep a backup of important text.</p>
-</div>
+  <h2>2. Auto Repair & Final Recheck</h2>
+
+  <p class="note">
+    Find repeated words, select suitable alternatives, preview proposed
+    changes, and apply only after reviewing them.
+  </p>
+
+  <div class="controls">
+    <button class="primary" id="findRepairBtn">
+      Find Improvement Suggestions
+    </button>
+    <button id="previewRepairBtn">Preview Selected Fixes</button>
+    <button id="applyRepairBtn">Apply Selected Fixes</button>
+    <button id="recheckRepairBtn">Final Recheck</button>
+  </div>
+
+  <div id="repairResults" class="hidden" aria-live="polite">
+    <h3>Suggested Improvements</h3>
+    <div id="repairSuggestions"></div>
+
+    <h3>Preview</h3>
+    <p class="note">
+      The preview is a proposed version. Check meaning and grammar before applying.
+    </p>
+
+    <textarea id="repairPreview"
+      placeholder="Your proposed article preview will appear here..."
+      aria-label="Proposed article preview"
+      spellcheck="true"></textarea>
+
+    <p id="repairStatus" class="status" role="status">
+      No changes have been applied.
+    </p>
+
+    <p class="note">
+      Keep a backup of important text. Automatic alternatives may not fit
+      every sentence.
+    </p>
+  </div>
 </section>
 
 <section class="panel">
-<h2>3. Plagiarism & Reference Comparison</h2>
-<p class="note">Compare your article with text you provide. This is not an internet-wide plagiarism scan.</p>
-<label for="referenceInput">Reference text</label>
-<textarea id="referenceInput" placeholder="Paste the source text here..."></textarea>
-<div class="controls">
-<button class="primary" id="compareBtn">Compare Texts</button>
-<button id="clearReferenceBtn">Clear Reference</button>
-</div>
-<div id="comparisonResults" class="hidden" aria-live="polite">
-<div class="grid" style="margin-top:18px">
-<div class="card">Text Similarity<div class="metric" id="similarityScore">—</div></div>
-<div class="card">Matched Phrases<div class="metric" id="matchCount">0</div></div>
-<div class="card">Compared Phrases<div class="metric" id="comparedCount">0</div></div>
-</div>
-<div class="bar"><div class="fill" id="similarityBar"></div></div>
-<p id="comparisonStatus" class="status"></p>
-<h3>Matching phrases</h3>
-<div class="table-wrap">
-<table>
-<thead><tr><th>Phrase in your content</th><th>Reference occurrence</th></tr></thead>
-<tbody id="matchesTable"></tbody>
-</table>
-</div>
-<p class="note">The percentage measures matching unique five-word phrases in your article. It does not prove plagiarism or authorship.</p>
-</div>
+  <h2>3. Plagiarism & Reference Comparison</h2>
+
+  <p class="note">
+    Compare your article with reference text you provide. This is not an
+    internet-wide plagiarism scan.
+  </p>
+
+  <label for="referenceInput">Reference text</label>
+  <textarea id="referenceInput"
+    placeholder="Paste the reference text here..."
+    spellcheck="true"></textarea>
+
+  <div class="controls">
+    <button class="primary" id="compareBtn">Compare Texts</button>
+    <button id="clearReferenceBtn">Clear Reference</button>
+  </div>
+
+  <div id="comparisonResults" class="hidden" aria-live="polite">
+    <div class="grid" style="margin-top:18px">
+      <div class="card">
+        Text Similarity
+        <div class="metric" id="similarityScore">—</div>
+      </div>
+      <div class="card">
+        Matched Phrases
+        <div class="metric" id="matchCount">0</div>
+      </div>
+      <div class="card">
+        Compared Phrases
+        <div class="metric" id="comparedCount">0</div>
+      </div>
+    </div>
+
+    <div class="bar" aria-label="Phrase match percentage">
+      <div class="fill" id="similarityBar"></div>
+    </div>
+
+    <p id="comparisonStatus" class="status" role="status"></p>
+
+    <h3>Matching Phrases</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Phrase in Your Content</th>
+            <th>Reference Match</th>
+          </tr>
+        </thead>
+        <tbody id="matchesTable"></tbody>
+      </table>
+    </div>
+
+    <p class="note">
+      This percentage is based on unique eligible five-word phrases in your
+      content that also occur in the supplied reference. It does not prove
+      plagiarism, authorship, or originality.
+    </p>
+  </div>
 </section>
 
 <div id="analysisResults" class="hidden">
-<section class="panel">
-<h2>Overall Content Quality</h2>
-<div class="metric" id="qualityScore">—</div>
-<div class="bar"><div class="fill" id="scoreBar"></div></div>
-<p id="scoreExplanation" class="note"></p>
-<p class="note">This structural score is not a plagiarism-free or originality certification.</p>
-</section>
 
-<div class="grid">
-<div class="card">Word Count<div class="metric" id="wordCount">0</div></div>
-<div class="card">Sentence Count<div class="metric" id="sentenceCount">0</div></div>
-<div class="card">Paragraph Count<div class="metric" id="paragraphCount">0</div></div>
-<div class="card">Avg. Sentence Length<div class="metric" id="avgSentenceLength">0</div></div>
-<div class="card">Repeated Words<div class="metric" id="repeatedWords">0</div></div>
-<div class="card">Long Sentences<div class="metric" id="longSentences">0</div></div>
-</div>
+  <section class="panel">
+    <h2>Overall Content Quality</h2>
+    <div class="metric" id="qualityScore">—</div>
+    <div class="bar" aria-label="Structural quality score">
+      <div class="fill" id="scoreBar"></div>
+    </div>
+    <p id="scoreExplanation" class="note"></p>
+    <p class="note">
+      This structural score is not a plagiarism-free or originality certification.
+    </p>
+  </section>
 
-<section class="panel"><h2>Content Quality Signals</h2><ul id="qualitySignals"></ul></section>
-<section class="panel"><h2>Readability Signals</h2><ul id="readabilitySignals"></ul></section>
-<section class="panel"><h2>SEO Signals</h2><ul id="seoSignals"></ul></section>
-<section class="panel"><h2>E-E-A-T Language Signals</h2><ul id="eeatSignals"></ul><p class="note">Language patterns do not prove real experience, expertise, authority, or trustworthiness.</p></section>
-<section class="panel"><h2>AI-Writing Language Signals</h2><ul id="aiSignals"></ul><p class="note">These checks cannot determine whether a human or AI wrote the text.</p></section>
-<section class="panel"><h2>Repeated Words</h2><div class="table-wrap"><table><thead><tr><th>Word</th><th>Count</th></tr></thead><tbody id="repeatedWordsTable"></tbody></table></div></section>
-<section class="panel"><h2>Repeated Phrases</h2><div class="table-wrap"><table><thead><tr><th>Phrase</th><th>Count</th></tr></thead><tbody id="repeatedPhrasesTable"></tbody></table></div></section>
-<section class="panel"><h2>Analysis Notes</h2><ul id="analysisNotes"></ul></section>
+  <div class="grid">
+    <div class="card">
+      Word Count
+      <div class="metric" id="wordCount">0</div>
+    </div>
+    <div class="card">
+      Sentence Count
+      <div class="metric" id="sentenceCount">0</div>
+    </div>
+    <div class="card">
+      Paragraph Count
+      <div class="metric" id="paragraphCount">0</div>
+    </div>
+    <div class="card">
+      Avg. Sentence Length
+      <div class="metric" id="avgSentenceLength">0</div>
+    </div>
+    <div class="card">
+      Repeated Words
+      <div class="metric" id="repeatedWords">0</div>
+    </div>
+    <div class="card">
+      Long Sentences
+      <div class="metric" id="longSentences">0</div>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h2>Content Quality Signals</h2>
+    <ul id="qualitySignals"></ul>
+  </section>
+
+  <section class="panel">
+    <h2>Readability Signals</h2>
+    <ul id="readabilitySignals"></ul>
+  </section>
+
+  <section class="panel">
+    <h2>SEO Signals</h2>
+    <ul id="seoSignals"></ul>
+  </section>
+
+  <section class="panel">
+    <h2>E-E-A-T Language Signals</h2>
+    <ul id="eeatSignals"></ul>
+    <p class="note">
+      Language patterns do not prove real experience, expertise, authority,
+      or trustworthiness.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>AI-Writing Language Signals</h2>
+    <ul id="aiSignals"></ul>
+    <p class="note">
+      These checks cannot determine whether a human or AI wrote the text.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Repeated Words</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Word</th><th>Count</th></tr></thead>
+        <tbody id="repeatedWordsTable"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Repeated Phrases</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Phrase</th><th>Count</th></tr></thead>
+        <tbody id="repeatedPhrasesTable"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Analysis Notes</h2>
+    <ul id="analysisNotes"></ul>
+  </section>
+
 </div>
+</main>
 
 <footer>
-Privacy: analysis runs in your browser. This version does not upload text, search the web for copied content, or connect to a plagiarism database.
+  Privacy: analysis and comparison run locally in your browser. This version
+  does not upload text, search the web for copied content, or connect to a
+  plagiarism database. Your browser or hosting environment may have its own
+  separate technical logs.
 </footer>
+
 </div>
 
 <script>
@@ -152,454 +472,764 @@ Privacy: analysis runs in your browser. This version does not upload text, searc
 const $ = id => document.getElementById(id);
 
 const STOP = new Set(
-("a an the and or but if then than this that these those with from into for are was were has have had you your our their they them his her its is in on at to of as by it be can will would should could about we he she i me my not do does did am been being").split(" ")
+  ("a an the and or but if then than this that these those with from into " +
+   "for are was were has have had you your our their they them his her its " +
+   "is in on at to of as by it be can will would should could about we he " +
+   "she i me my not do does did am been being").split(/\s+/)
 );
 
 const ALTERNATIVES = {
- important:["significant","essential","valuable"],
- good:["useful","helpful","effective"],
- bad:["poor","weak","unsuitable"],
- make:["create","develop","produce"],
- use:["apply","employ","work with"],
- help:["assist","support","guide"],
- show:["display","illustrate","demonstrate"],
- gives:["provides","offers","delivers"],
- give:["provide","offer","deliver"],
- useful:["helpful","practical","valuable"],
- clear:["straightforward","specific","easy to understand"],
- improve:["strengthen","refine","enhance"],
- provides:["offers","supplies","delivers"],
- explains:["describes","clarifies","outlines"],
- explain:["describe","clarify","outline"],
- many:["several","numerous","a range of"],
- large:["substantial","considerable","broad"],
- small:["limited","compact","modest"],
- different:["distinct","varied","alternative"],
- easy:["simple","straightforward","manageable"],
- better:["stronger","more suitable","more effective"],
- effective:["practical","successful","useful"],
- information:["details","guidance","facts"],
- content:["material","text","copy"],
- article:["post","piece","write-up"],
- readers:["audience","visitors","people"]
+  important:["significant","essential","valuable"],
+  good:["useful","helpful","effective"],
+  bad:["poor","weak","unsuitable"],
+  make:["create","develop","produce"],
+  use:["apply","employ","work with"],
+  help:["assist","support","guide"],
+  show:["display","illustrate","demonstrate"],
+  gives:["provides","offers","delivers"],
+  give:["provide","offer","deliver"],
+  useful:["helpful","practical","valuable"],
+  clear:["straightforward","specific","easy to understand"],
+  improve:["strengthen","refine","enhance"],
+  provides:["offers","supplies","delivers"],
+  explains:["describes","clarifies","outlines"],
+  explain:["describe","clarify","outline"],
+  many:["several","numerous","a range of"],
+  large:["substantial","considerable","broad"],
+  small:["limited","compact","modest"],
+  different:["distinct","varied","alternative"],
+  easy:["simple","straightforward","manageable"],
+  better:["stronger","more suitable","more effective"],
+  effective:["practical","successful","useful"],
+  information:["details","guidance","facts"],
+  content:["material","text","copy"],
+  article:["post","piece","write-up"],
+  readers:["audience","visitors","people"]
 };
 
 function words(text){
- return text.match(/[\p{L}\p{N}]+(?:['’_-][\p{L}\p{N}]+)*/gu)||[];
+  return text.match(/[\p{L}\p{N}]+(?:['’_-][\p{L}\p{N}]+)*/gu) || [];
 }
 
 function normalizedWords(text){
- return words(text).map(w=>w.toLocaleLowerCase().replace(/’/g,"'"));
+  return words(text).map(word =>
+    word.toLocaleLowerCase().replace(/’/g,"'")
+  );
 }
 
 function sentences(text){
- return text.split(/[.!?]+(?:\s+|$)/).map(s=>s.trim()).filter(Boolean);
+  return text
+    .split(/[.!?]+(?:\s+|$)/)
+    .map(sentence => sentence.trim())
+    .filter(Boolean);
 }
 
 function paragraphs(text){
- return text.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
+  return text
+    .split(/\n\s*\n/)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean);
 }
 
 function meaningful(word){
- return word.length>=3&&!STOP.has(word);
+  return word.length >= 3 && !STOP.has(word);
 }
 
 function setList(id,items){
- const el=$(id);
- el.replaceChildren();
- if(!items.length) items=[{text:"No major signals detected by this check.",type:"good"}];
- items.forEach(item=>{
-  const li=document.createElement("li");
-  li.textContent=item.text;
-  li.className=item.type||"";
-  el.appendChild(li);
- });
+  const element = $(id);
+  element.replaceChildren();
+
+  if(!items.length){
+    items = [{
+      text:"No major signals detected by this check.",
+      type:"good"
+    }];
+  }
+
+  items.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item.text;
+    li.className = item.type || "";
+    element.appendChild(li);
+  });
 }
 
 function setRows(id,rows,emptyText,limit=30){
- const tbody=$(id);
- tbody.replaceChildren();
- if(!rows.length){
-  const tr=document.createElement("tr");
-  const td=document.createElement("td");
-  td.colSpan=2;
-  td.textContent=emptyText;
-  tr.appendChild(td);
-  tbody.appendChild(tr);
-  return;
- }
- rows.slice(0,limit).forEach(row=>{
-  const tr=document.createElement("tr");
-  row.forEach(value=>{
-   const td=document.createElement("td");
-   td.textContent=String(value);
-   tr.appendChild(td);
+  const tbody = $(id);
+  tbody.replaceChildren();
+
+  if(!rows.length){
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 2;
+    td.textContent = emptyText;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  rows.slice(0,limit).forEach(row => {
+    const tr = document.createElement("tr");
+
+    row.forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = String(value);
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
   });
-  tbody.appendChild(tr);
- });
 }
 
 function frequencies(list){
- const map=new Map();
- list.forEach(word=>{
-  if(meaningful(word)) map.set(word,(map.get(word)||0)+1);
- });
- return [...map.entries()]
-  .filter(([,count])=>count>=3)
-  .sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  const map = new Map();
+
+  list.forEach(word => {
+    if(meaningful(word)){
+      map.set(word,(map.get(word) || 0) + 1);
+    }
+  });
+
+  return [...map.entries()]
+    .filter(([,count]) => count >= 3)
+    .sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0]));
 }
 
 function shingles(text,n=5){
- const list=normalizedWords(text);
- const map=new Map();
- for(let i=0;i<=list.length-n;i++){
-  const phrase=list.slice(i,i+n);
-  if(phrase.filter(meaningful).length<2) continue;
-  const key=phrase.join(" ");
-  if(!map.has(key)) map.set(key,{phrase:key,count:0});
-  map.get(key).count++;
- }
- return map;
+  const list = normalizedWords(text);
+  const map = new Map();
+
+  for(let i=0;i<=list.length-n;i++){
+    const phrase = list.slice(i,i+n);
+
+    if(phrase.filter(meaningful).length < 2) continue;
+
+    const key = phrase.join(" ");
+
+    if(!map.has(key)){
+      map.set(key,{phrase:key,count:0});
+    }
+
+    map.get(key).count++;
+  }
+
+  return map;
 }
 
 function repeatedPhrases(text){
- const list=normalizedWords(text);
- const map=new Map();
- for(const n of [3,4,5]){
-  for(let i=0;i<=list.length-n;i++){
-   const phrase=list.slice(i,i+n);
-   if(phrase.filter(meaningful).length<2) continue;
-   const key=phrase.join(" ");
-   map.set(key,(map.get(key)||0)+1);
+  const list = normalizedWords(text);
+  const map = new Map();
+
+  for(const size of [3,4,5]){
+    for(let i=0;i<=list.length-size;i++){
+      const phrase = list.slice(i,i+size);
+
+      if(phrase.filter(meaningful).length < 2) continue;
+
+      const key = phrase.join(" ");
+      map.set(key,(map.get(key) || 0) + 1);
+    }
   }
- }
- const sorted=[...map.entries()]
-  .filter(([,count])=>count>=2)
-  .sort((a,b)=>b[1]-a[1]||b[0].length-a[0].length);
- const kept=[];
- for(const item of sorted){
-  if(!kept.some(([phrase])=>phrase.includes(item[0]))) kept.push(item);
- }
- return kept.slice(0,30);
+
+  const sorted = [...map.entries()]
+    .filter(([,count]) => count >= 2)
+    .sort((a,b) =>
+      b[1]-a[1] || b[0].length-a[0].length
+    );
+
+  const kept = [];
+
+  for(const item of sorted){
+    if(!kept.some(([phrase]) => phrase.includes(item[0]))){
+      kept.push(item);
+    }
+  }
+
+  return kept.slice(0,30);
 }
 
-function compareTexts(){
- const text=$("contentInput").value.trim();
- const reference=$("referenceInput").value.trim();
- $("comparisonResults").classList.remove("hidden");
-
- if(!text||!reference){
-  $("similarityScore").textContent="N/A";
-  $("matchCount").textContent="0";
-  $("comparedCount").textContent="0";
-  $("similarityBar").style.width="0%";
-  $("comparisonStatus").textContent="Enter both texts to perform a comparison. No score has been calculated.";
-  setRows("matchesTable",[],"No comparison performed.");
-  return;
- }
-
- const a=shingles(text);
- const b=shingles(reference);
- const matched=[...a.keys()].filter(key=>b.has(key));
- const total=a.size;
- const pct=total?Math.round(matched.length/total*100):null;
-
- $("similarityScore").textContent=pct===null?"N/A":pct+"%";
- $("matchCount").textContent=matched.length;
- $("comparedCount").textContent=total;
- $("similarityBar").style.width=(pct===null?0:pct)+"%";
-
- $("comparisonStatus").textContent=pct===null
-  ?"Not enough eligible five-word phrases were available to calculate a percentage."
-  :"Method: "+matched.length+" of "+total+" unique eligible five-word phrases in your content also occur in the supplied reference. This is local comparison only.";
-
- const rows=matched
-  .sort((x,y)=>a.get(y).count-a.get(x).count)
-  .slice(0,100)
-  .map(key=>[a.get(key).phrase,"Found in provided reference"]);
- setRows("matchesTable",rows,"No matching eligible phrases found.");
-}
+/* CONTENT ANALYZER */
 
 function analyzeContent(){
- const text=$("contentInput").value.trim();
- if(!text){
-  alert("Please enter some content first.");
-  return;
- }
+  const text = $("contentInput").value.trim();
 
- const w=words(text);
- const s=sentences(text);
- const p=paragraphs(text);
- const wc=w.length,sc=s.length,pc=p.length;
- const avg=sc?wc/sc:0;
- const long=s.filter(sentence=>words(sentence).length>25).length;
- const freq=frequencies(normalizedWords(text));
- const heavy=freq.filter(([,count])=>count>=5);
- const meaningfulTotal=normalizedWords(text).filter(meaningful).length;
- const repeatedTotal=freq.reduce((sum,[,count])=>sum+count,0);
- const burden=meaningfulTotal?repeatedTotal/meaningfulTotal:0;
-
- let score=100;
- if(wc<100) score-=10;
- if(avg>25) score-=10;
- if(avg>35) score-=10;
- if(heavy.length>5) score-=10;
- if(pc===1&&wc>300) score-=5;
- if(sc&&long>sc*.3) score-=10;
- if(burden>.20) score-=5;
- score=Math.max(0,Math.min(100,score));
-
- $("qualityScore").textContent=score+"/100";
- $("scoreBar").style.width=score+"%";
- $("wordCount").textContent=wc;
- $("sentenceCount").textContent=sc;
- $("paragraphCount").textContent=pc;
- $("avgSentenceLength").textContent=avg.toFixed(1);
- $("repeatedWords").textContent=freq.length;
- $("longSentences").textContent=long;
-
- const quality=[{
-  text:wc<100?"Content is short for detailed structural analysis.":"Enough text is available for basic structural analysis.",
-  type:wc<100?"warning":"good"
- },{
-  text:pc>1?"Content is divided into multiple paragraphs.":"Only one paragraph was detected.",
-  type:pc>1?"good":"warning"
- }];
- if(freq.length) quality.push({
-  text:freq.length+" meaningful words appear at least three times. Review whether repetition is necessary.",
-  type:"warning"
- });
- if(burden>.20) quality.push({
-  text:"Repeated-word burden is above the current review threshold.",
-  type:"warning"
- });
- setList("qualitySignals",quality);
-
- setList("readabilitySignals",[
-  {text:avg<=20?"Average sentence length is within a generally readable range.":"Average sentence length is above 20 words.",type:avg<=20?"good":"warning"},
-  {text:long?long+" sentence(s) contain more than 25 words.":"No sentences longer than 25 words were detected.",type:long?"warning":"good"}
- ]);
-
- const headings=(text.match(/(^|\n)\s*(#{1,6}\s+|[A-Z][^\n]{0,80}:)/g)||[]).length;
- const seo=[
-  {text:wc>=300?"At least 300 words are available for basic on-page checks.":"Content is short; deeper topical analysis may be limited.",type:wc>=300?"good":"warning"},
-  {text:headings?"Possible heading or section markers were detected.":"No clear heading markers were detected.",type:headings?"good":"warning"}
- ];
- const questions=(text.match(/\?/g)||[]).length;
- if(questions) seo.push({text:questions+" question(s) detected.",type:"good"});
- setList("seoSignals",seo);
-
- const eeat=[
-  [/\b(I|we|my|our|tested|used|experience|reviewed|tried|measured)\b/i,"First-person or experience-related language"],
-  [/\b(source|according|study|research|data|evidence|official|report)\b/i,"Evidence or source-related language"],
-  [/\b(expert|professional|specialist|knowledge|technical)\b/i,"Expertise-related terminology"]
- ].map(([regex,label])=>{
-  const found=regex.test(text);
-  return {text:label+(found?" detected.":" not detected."),type:found?"good":"warning"};
- });
- setList("eeatSignals",eeat);
-
- const transitions=(text.match(/\b(however|moreover|furthermore|therefore|additionally|in conclusion|overall|for example|as a result)\b/gi)||[]).length;
- const starters={};
- s.forEach(sentence=>{
-  const first=words(sentence)[0];
-  if(first){
-   const key=first.toLowerCase();
-   starters[key]=(starters[key]||0)+1;
+  if(!text){
+    alert("Please enter some content first.");
+    return;
   }
- });
- const repeatedStarters=Object.values(starters).filter(count=>count>=3).length;
- setList("aiSignals",[
-  {text:transitions>8?"Frequent tracked transition phrases detected.":"No unusually high number of tracked transition phrases detected.",type:transitions>8?"warning":"good"},
-  {text:repeatedStarters?"Some sentence starters repeat three or more times.":"No strong repeated sentence-starter pattern detected.",type:repeatedStarters?"warning":"good"}
- ]);
 
- setRows("repeatedWordsTable",freq.map(([word,count])=>[word,count]),"No meaningful repeated words detected.");
- setRows("repeatedPhrasesTable",repeatedPhrases(text).map(([phrase,count])=>[phrase,count]),"No repeated meaningful phrases detected.");
+  const allWords = words(text);
+  const sentenceList = sentences(text);
+  const paragraphList = paragraphs(text);
 
- const notes=[];
- if(avg>25) notes.push({text:"Review long average sentence length.",type:"warning"});
- if(sc&&long>sc*.3) notes.push({text:"More than 30% of sentences exceed 25 words.",type:"warning"});
- if(freq.length>10) notes.push({text:"Several meaningful words repeat frequently.",type:"warning"});
- if(burden>.20) notes.push({text:"Repeated-word burden exceeded the current review threshold.",type:"warning"});
- if(!notes.length) notes.push({text:"No major issues were detected by these deterministic checks.",type:"good"});
- setList("analysisNotes",notes);
+  const wc = allWords.length;
+  const sc = sentenceList.length;
+  const pc = paragraphList.length;
+  const avg = sc ? wc/sc : 0;
 
- $("scoreExplanation").textContent=score>=90
-  ?"Strong structural result under the current measurable checks."
-  :score>=70
-  ?"Some measurable structural issues may be worth reviewing."
-  :"Several structural issues were detected. Review the signals above.";
+  const long = sentenceList.filter(sentence =>
+    words(sentence).length > 25
+  ).length;
 
- $("analysisResults").classList.remove("hidden");
+  const normalized = normalizedWords(text);
+  const freq = frequencies(normalized);
+  const heavy = freq.filter(([,count]) => count >= 5);
+  const meaningfulTotal = normalized.filter(meaningful).length;
+
+  const repeatedTotal = freq.reduce(
+    (sum,[,count]) => sum + count,0
+  );
+
+  const burden = meaningfulTotal
+    ? repeatedTotal/meaningfulTotal
+    : 0;
+
+  let score = 100;
+
+  if(wc < 100) score -= 10;
+  if(avg > 25) score -= 10;
+  if(avg > 35) score -= 10;
+  if(heavy.length > 5) score -= 10;
+  if(pc === 1 && wc > 300) score -= 5;
+  if(sc && long > sc*.3) score -= 10;
+  if(burden > .20) score -= 5;
+
+  score = Math.max(0,Math.min(100,score));
+
+  $("qualityScore").textContent = score + "/100";
+  $("scoreBar").style.width = score + "%";
+  $("wordCount").textContent = wc;
+  $("sentenceCount").textContent = sc;
+  $("paragraphCount").textContent = pc;
+  $("avgSentenceLength").textContent = avg.toFixed(1);
+  $("repeatedWords").textContent = freq.length;
+  $("longSentences").textContent = long;
+
+  const quality = [{
+    text:wc < 100
+      ? "Content is short for detailed structural analysis."
+      : "Enough text is available for basic structural analysis.",
+    type:wc < 100 ? "warning" : "good"
+  },{
+    text:pc > 1
+      ? "Content is divided into multiple paragraphs."
+      : "Only one paragraph was detected.",
+    type:pc > 1 ? "good" : "warning"
+  }];
+
+  if(freq.length){
+    quality.push({
+      text:freq.length +
+        " meaningful words appear at least three times. Review whether repetition is necessary.",
+      type:"warning"
+    });
+  }
+
+  if(burden > .20){
+    quality.push({
+      text:"Repeated-word burden is above the current review threshold.",
+      type:"warning"
+    });
+  }
+
+  setList("qualitySignals",quality);
+
+  setList("readabilitySignals",[
+    {
+      text:avg <= 20
+        ? "Average sentence length is within a generally readable range."
+        : "Average sentence length is above 20 words.",
+      type:avg <= 20 ? "good" : "warning"
+    },
+    {
+      text:long
+        ? long + " sentence(s) contain more than 25 words."
+        : "No sentences longer than 25 words were detected.",
+      type:long ? "warning" : "good"
+    }
+  ]);
+
+  const headings = (
+    text.match(/(^|\n)\s*(#{1,6}\s+|[A-Z][^\n]{0,80}:)/g) || []
+  ).length;
+
+  const seo = [{
+    text:wc >= 300
+      ? "At least 300 words are available for basic on-page checks."
+      : "Content is short; deeper topical analysis may be limited.",
+    type:wc >= 300 ? "good" : "warning"
+  },{
+    text:headings
+      ? "Possible heading or section markers were detected."
+      : "No clear heading markers were detected.",
+    type:headings ? "good" : "warning"
+  }];
+
+  const questions = (text.match(/\?/g) || []).length;
+
+  if(questions){
+    seo.push({
+      text:questions + " question(s) detected.",
+      type:"good"
+    });
+  }
+
+  setList("seoSignals",seo);
+
+  const eeat = [
+    [/\b(I|we|my|our|tested|used|experience|reviewed|tried|measured)\b/i,
+      "First-person or experience-related language"],
+    [/\b(source|according|study|research|data|evidence|official|report)\b/i,
+      "Evidence or source-related language"],
+    [/\b(expert|professional|specialist|knowledge|technical)\b/i,
+      "Expertise-related terminology"]
+  ].map(([regex,label]) => {
+    const found = regex.test(text);
+
+    return {
+      text:label + (found ? " detected." : " not detected."),
+      type:found ? "good" : "warning"
+    };
+  });
+
+  setList("eeatSignals",eeat);
+
+  const transitions = (
+    text.match(/\b(however|moreover|furthermore|therefore|additionally|in conclusion|overall|for example|as a result)\b/gi) || []
+  ).length;
+
+  const starters = new Map();
+
+  sentenceList.forEach(sentence => {
+    const first = words(sentence)[0];
+
+    if(first){
+      const key = first.toLowerCase();
+      starters.set(key,(starters.get(key) || 0) + 1);
+    }
+  });
+
+  const repeatedStarters = [...starters.values()]
+    .filter(count => count >= 3).length;
+
+  setList("aiSignals",[
+    {
+      text:transitions > 8
+        ? "Frequent tracked transition phrases detected."
+        : "No unusually high number of tracked transition phrases detected.",
+      type:transitions > 8 ? "warning" : "good"
+    },
+    {
+      text:repeatedStarters
+        ? "Some sentence starters repeat three or more times."
+        : "No strong repeated sentence-starter pattern detected.",
+      type:repeatedStarters ? "warning" : "good"
+    }
+  ]);
+
+  setRows(
+    "repeatedWordsTable",
+    freq.map(([word,count]) => [word,count]),
+    "No meaningful repeated words detected."
+  );
+
+  setRows(
+    "repeatedPhrasesTable",
+    repeatedPhrases(text).map(([phrase,count]) => [phrase,count]),
+    "No repeated meaningful phrases detected."
+  );
+
+  const notes = [];
+
+  if(avg > 25){
+    notes.push({
+      text:"Review long average sentence length.",
+      type:"warning"
+    });
+  }
+
+  if(sc && long > sc*.3){
+    notes.push({
+      text:"More than 30% of sentences exceed 25 words.",
+      type:"warning"
+    });
+  }
+
+  if(freq.length > 10){
+    notes.push({
+      text:"Several meaningful words repeat frequently.",
+      type:"warning"
+    });
+  }
+
+  if(burden > .20){
+    notes.push({
+      text:"Repeated-word burden exceeded the current review threshold.",
+      type:"warning"
+    });
+  }
+
+  if(!notes.length){
+    notes.push({
+      text:"No major issues were detected by these deterministic checks.",
+      type:"good"
+    });
+  }
+
+  setList("analysisNotes",notes);
+
+  $("scoreExplanation").textContent = score >= 90
+    ? "Strong structural result under the current measurable checks."
+    : score >= 70
+      ? "Some measurable structural issues may be worth reviewing."
+      : "Several structural issues were detected. Review the signals above.";
+
+  $("analysisResults").classList.remove("hidden");
+}
+
+/* LOCAL REFERENCE COMPARISON */
+
+function compareTexts(){
+  const text = $("contentInput").value.trim();
+  const reference = $("referenceInput").value.trim();
+
+  $("comparisonResults").classList.remove("hidden");
+
+  if(!text || !reference){
+    $("similarityScore").textContent = "N/A";
+    $("matchCount").textContent = "0";
+    $("comparedCount").textContent = "0";
+    $("similarityBar").style.width = "0%";
+
+    $("comparisonStatus").textContent =
+      "Enter both texts to perform a comparison. No score has been calculated.";
+
+    setRows("matchesTable",[],"No comparison performed.");
+    return;
+  }
+
+  const a = shingles(text);
+  const b = shingles(reference);
+  const matched = [...a.keys()].filter(key => b.has(key));
+  const total = a.size;
+  const pct = total ? Math.round(matched.length/total*100) : null;
+
+  $("similarityScore").textContent =
+    pct === null ? "N/A" : pct + "%";
+
+  $("matchCount").textContent = matched.length;
+  $("comparedCount").textContent = total;
+
+  $("similarityBar").style.width =
+    (pct === null ? 0 : pct) + "%";
+
+  $("comparisonStatus").textContent = pct === null
+    ? "Not enough eligible five-word phrases were available to calculate a percentage."
+    : "Method: " + matched.length + " of " + total +
+      " unique eligible five-word phrases in your content also occur in the supplied reference. This is local comparison only.";
+
+  const rows = matched
+    .sort((x,y) => a.get(y).count-a.get(x).count)
+    .slice(0,100)
+    .map(key => [a.get(key).phrase,"Found in provided reference"]);
+
+  setRows("matchesTable",rows,"No matching eligible phrases found.");
 }
 
 /* AUTO REPAIR */
-let repairItems=[];
-let previewReady=false;
-let previewSource="";
+
+let repairItems = [];
+let repairSource = "";
+let previewSource = "";
+let previewReady = false;
 
 function invalidatePreview(){
- previewReady=false;
- previewSource="";
- $("repairPreview").value="";
+  previewReady = false;
+  previewSource = "";
+  $("repairPreview").value = "";
+}
+
+function showRepairStatus(message){
+  $("repairStatus").textContent = message;
 }
 
 function findRepairSuggestions(){
- const text=$("contentInput").value;
- const box=$("repairSuggestions");
- box.replaceChildren();
- $("repairResults").classList.remove("hidden");
- repairItems=[];
- invalidatePreview();
+  const text = $("contentInput").value;
+  const box = $("repairSuggestions");
 
- if(!text.trim()){
-  $("repairStatus").textContent="Enter your article in Content Analyzer first.";
-  return;
- }
+  box.replaceChildren();
+  $("repairResults").classList.remove("hidden");
 
- const counts=new Map();
- normalizedWords(text).forEach(word=>{
-  if(meaningful(word)) counts.set(word,(counts.get(word)||0)+1);
- });
+  repairItems = [];
+  repairSource = text;
+  invalidatePreview();
 
- const repeated=[...counts.entries()]
-  .filter(([word,count])=>count>=3&&ALTERNATIVES[word])
-  .sort((a,b)=>b[1]-a[1])
-  .slice(0,20);
+  if(!text.trim()){
+    showRepairStatus("Enter your article in Content Analyzer first.");
+    return;
+  }
 
- if(!repeated.length){
-  $("repairStatus").textContent="No repeated words with built-in alternatives were found. This does not mean the text has no other writing issues.";
-  const p=document.createElement("p");
-  p.textContent="Review sentence clarity, repeated ideas, and grammar manually.";
-  box.appendChild(p);
-  return;
- }
+  const counts = new Map();
 
- repeated.forEach(([word,count])=>{
-  const item={word,count,alternatives:ALTERNATIVES[word],selected:false,replacement:ALTERNATIVES[word][0]};
-  repairItems.push(item);
-
-  const row=document.createElement("div");
-  row.className="repair-row";
-  const label=document.createElement("label");
-  const checkbox=document.createElement("input");
-  checkbox.type="checkbox";
-  checkbox.setAttribute("aria-label","Select replacement for "+word);
-  checkbox.addEventListener("change",()=>{
-   item.selected=checkbox.checked;
-   invalidatePreview();
+  normalizedWords(text).forEach(word => {
+    if(meaningful(word)){
+      counts.set(word,(counts.get(word) || 0) + 1);
+    }
   });
 
-  const description=document.createElement("span");
-  description.textContent='"'+word+'" appears '+count+" times. Select only if a replacement fits the context.";
-  label.append(checkbox,description);
-  row.appendChild(label);
+  const repeated = [...counts.entries()]
+    .filter(([word,count]) => count >= 3 && ALTERNATIVES[word])
+    .sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0]))
+    .slice(0,20);
 
-  const selectLabel=document.createElement("label");
-  selectLabel.textContent="Replacement word";
-  const select=document.createElement("select");
-  select.setAttribute("aria-label","Replacement for "+word);
+  if(!repeated.length){
+    const message = document.createElement("p");
 
-  item.alternatives.forEach(alternative=>{
-   const option=document.createElement("option");
-   option.value=alternative;
-   option.textContent=alternative;
-   select.appendChild(option);
+    message.textContent =
+      "No repeated words with built-in alternatives were found. " +
+      "This does not mean the article has no other writing issues.";
+
+    box.appendChild(message);
+
+    showRepairStatus(
+      "No automatic suggestions are available. Your article has not been changed."
+    );
+    return;
+  }
+
+  repeated.forEach(([word,count]) => {
+    const item = {
+      word,
+      count,
+      alternatives:ALTERNATIVES[word],
+      selected:false,
+      replacement:ALTERNATIVES[word][0]
+    };
+
+    repairItems.push(item);
+
+    const row = document.createElement("div");
+    row.className = "repair-row";
+
+    const label = document.createElement("label");
+    label.className = "choice";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.setAttribute(
+      "aria-label",
+      "Select replacement for " + word
+    );
+
+    checkbox.addEventListener("change",() => {
+      item.selected = checkbox.checked;
+      invalidatePreview();
+
+      showRepairStatus(
+        "Selection changed. Preview the proposed changes before applying."
+      );
+    });
+
+    const description = document.createElement("span");
+
+    description.textContent =
+      '"' + word + '" appears ' + count +
+      " times. Select only if a replacement fits the context.";
+
+    label.append(checkbox,description);
+    row.appendChild(label);
+
+    const selectLabel = document.createElement("label");
+    selectLabel.textContent = "Replacement word";
+
+    const select = document.createElement("select");
+    select.setAttribute(
+      "aria-label",
+      "Replacement for " + word
+    );
+
+    item.alternatives.forEach(alternative => {
+      const option = document.createElement("option");
+      option.value = alternative;
+      option.textContent = alternative;
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change",() => {
+      item.replacement = select.value;
+      invalidatePreview();
+
+      showRepairStatus(
+        "Replacement updated. Generate a fresh preview before applying."
+      );
+    });
+
+    selectLabel.appendChild(select);
+    row.appendChild(selectLabel);
+    box.appendChild(row);
   });
 
-  select.addEventListener("change",()=>{
-   item.replacement=select.value;
-   invalidatePreview();
-  });
-
-  selectLabel.appendChild(select);
-  row.appendChild(selectLabel);
-  box.appendChild(row);
- });
-
- $("repairStatus").textContent=repairItems.length+" suggestion(s) found. Select changes and preview them.";
+  showRepairStatus(
+    repairItems.length +
+    " suggestion(s) found. Select a checkbox, choose a replacement, " +
+    "and click Preview Selected Fixes."
+  );
 }
 
 function preserveCase(original,replacement){
- if(original===original.toUpperCase()) return replacement.toUpperCase();
- if(original[0]===original[0].toUpperCase()){
-  return replacement.charAt(0).toUpperCase()+replacement.slice(1);
- }
- return replacement;
+  if(original === original.toUpperCase()){
+    return replacement.toUpperCase();
+  }
+
+  if(original[0] === original[0].toUpperCase()){
+    return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+  }
+
+  return replacement;
 }
 
 function makeRepairPreview(){
- const original=$("contentInput").value;
- if(!original.trim()){
-  $("repairStatus").textContent="Enter your article in Content Analyzer first.";
-  return;
- }
+  const original = $("contentInput").value;
 
- if(!repairItems.length) findRepairSuggestions();
- const selected=repairItems.filter(item=>item.selected);
+  if(!original.trim()){
+    showRepairStatus("Enter your article in Content Analyzer first.");
+    return;
+  }
 
- if(!selected.length){
-  $("repairPreview").value=original;
-  previewSource=original;
-  previewReady=true;
-  $("repairStatus").textContent="No suggestions selected. The preview matches your original text.";
-  return;
- }
+  if(repairSource !== original){
+    findRepairSuggestions();
 
- let result=original;
+    if(repairItems.length){
+      showRepairStatus(
+        "Suggestions refreshed because the article changed. " +
+        "Select your desired fixes and preview again."
+      );
+    }
 
- selected.forEach(item=>{
-  const escaped=item.word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-  const regex=new RegExp("\\b"+escaped+"\\b","gi");
-  let occurrence=0;
-  result=result.replace(regex,match=>{
-   occurrence++;
-   return occurrence===1?match:preserveCase(match,item.replacement);
+    return;
+  }
+
+  if(!repairItems.length){
+    showRepairStatus(
+      "No available suggestions. Click Find Improvement Suggestions first."
+    );
+    return;
+  }
+
+  const selected = repairItems.filter(item => item.selected);
+
+  if(!selected.length){
+    invalidatePreview();
+
+    $("repairPreview").value = original;
+
+    showRepairStatus(
+      "No suggestions selected. Select at least one checkbox before previewing changes."
+    );
+    return;
+  }
+
+  let result = original;
+
+  selected.forEach(item => {
+    const escaped = item.word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    const regex = new RegExp("\\b" + escaped + "\\b","gi");
+    let occurrence = 0;
+
+    result = result.replace(regex,match => {
+      occurrence++;
+
+      // Keep the first occurrence; replace later occurrences only.
+      return occurrence === 1
+        ? match
+        : preserveCase(match,item.replacement);
+    });
   });
- });
 
- $("repairPreview").value=result;
- previewSource=original;
- previewReady=true;
- $("repairStatus").textContent="Preview ready. Later occurrences of selected words were replaced. Review grammar and context before applying.";
+  $("repairPreview").value = result;
+  previewSource = original;
+  previewReady = true;
+
+  showRepairStatus(
+    result === original
+      ? "No text differences were produced. Review your selections."
+      : "Preview ready. Review every change for meaning and grammar before applying."
+  );
 }
 
 function applyRepairFixes(){
- if(!previewReady||previewSource!==$("contentInput").value){
+  const original = $("contentInput").value;
+
+  if(
+    !previewReady ||
+    previewSource !== original ||
+    repairSource !== original
+  ){
+    invalidatePreview();
+
+    showRepairStatus(
+      "Preview is missing or outdated. Find suggestions and generate a fresh preview first."
+    );
+
+    return;
+  }
+
+  const preview = $("repairPreview").value;
+
+  if(preview === original){
+    showRepairStatus(
+      "No changes to apply. Select a suggestion and preview it first."
+    );
+    return;
+  }
+
+  if(!confirm(
+    "Apply the previewed replacements to your article? " +
+    "Review the preview and keep a backup first."
+  )){
+    showRepairStatus(
+      "Changes cancelled. Your original article remains unchanged."
+    );
+    return;
+  }
+
+  $("contentInput").value = preview;
+
+  repairItems = [];
+  repairSource = "";
   invalidatePreview();
-  $("repairStatus").textContent="The article has changed or the preview is outdated. Generate a fresh preview before applying.";
-  return;
- }
+  $("repairSuggestions").replaceChildren();
 
- const preview=$("repairPreview").value;
- const original=$("contentInput").value;
+  analyzeContent();
 
- if(preview===original){
-  $("repairStatus").textContent="No text changes to apply. Select at least one suggestion and preview again.";
-  return;
- }
-
- if(!confirm("Apply the previewed changes to your article? Review the preview first.")) return;
-
- $("contentInput").value=preview;
- repairItems=[];
- invalidatePreview();
- $("repairSuggestions").replaceChildren();
- analyzeContent();
- $("repairStatus").textContent="Edits applied and content re-analyzed. Find suggestions again if you want to make further changes.";
+  showRepairStatus(
+    "Selected replacements applied and content re-analyzed. " +
+    "Review the article again for grammar and meaning."
+  );
 }
 
 function finalRecheck(){
- if(!$("contentInput").value.trim()){
-  $("repairStatus").textContent="Enter your article before running the final recheck.";
-  return;
- }
- analyzeContent();
- invalidatePreview();
- $("repairStatus").textContent="Final recheck complete. Review the updated quality, readability, SEO, and repetition signals. This is not an originality certification.";
- $("analysisResults").scrollIntoView({behavior:"smooth",block:"start"});
+  if(!$("contentInput").value.trim()){
+    $("repairResults").classList.remove("hidden");
+    showRepairStatus("Enter your article before running the final recheck.");
+    return;
+  }
+
+  analyzeContent();
+  invalidatePreview();
+
+  showRepairStatus(
+    "Final recheck complete. Review the updated quality, readability, SEO, " +
+    "and repetition signals. This is not an originality certification."
+  );
+
+  $("analysisResults").scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
 }
+
+/* BUTTON EVENTS */
 
 $("analyzeBtn").addEventListener("click",analyzeContent);
 $("compareBtn").addEventListener("click",compareTexts);
@@ -608,31 +1238,38 @@ $("previewRepairBtn").addEventListener("click",makeRepairPreview);
 $("applyRepairBtn").addEventListener("click",applyRepairFixes);
 $("recheckRepairBtn").addEventListener("click",finalRecheck);
 
-$("contentInput").addEventListener("input",()=>{
- if(previewReady&&previewSource!==$("contentInput").value){
+$("contentInput").addEventListener("input",() => {
+  if(repairSource && repairSource !== $("contentInput").value){
+    invalidatePreview();
+
+    showRepairStatus(
+      "Article changed. Find suggestions again and generate a new preview."
+    );
+  }
+});
+
+$("clearReferenceBtn").addEventListener("click",() => {
+  $("referenceInput").value = "";
+  $("comparisonResults").classList.add("hidden");
+});
+
+$("clearBtn").addEventListener("click",() => {
+  $("contentInput").value = "";
+  $("referenceInput").value = "";
+
+  $("analysisResults").classList.add("hidden");
+  $("comparisonResults").classList.add("hidden");
+  $("repairResults").classList.add("hidden");
+
+  $("repairSuggestions").replaceChildren();
+  $("repairPreview").value = "";
+
+  repairItems = [];
+  repairSource = "";
   invalidatePreview();
-  $("repairStatus").textContent="Article changed. Generate a new preview before applying any edits.";
- }
-});
 
-$("clearReferenceBtn").addEventListener("click",()=>{
- $("referenceInput").value="";
- $("comparisonResults").classList.add("hidden");
+  showRepairStatus("No changes have been applied.");
 });
-
-$("clearBtn").addEventListener("click",()=>{
- $("contentInput").value="";
- $("referenceInput").value="";
- $("analysisResults").classList.add("hidden");
- $("comparisonResults").classList.add("hidden");
- $("repairResults").classList.add("hidden");
- $("repairSuggestions").replaceChildren();
- $("repairPreview").value="";
- $("repairStatus").textContent="No changes have been applied.";
- repairItems=[];
- invalidatePreview();
-});
-
 </script>
 </body>
 </html>
